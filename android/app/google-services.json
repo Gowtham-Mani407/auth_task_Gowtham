@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "369523901500",
+    "project_id": "all-apps-6cf99",
+    "storage_bucket": "all-apps-6cf99.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369523901500:android:3eed4429d2fde99eeaaf39",
+        "android_client_info": {
+          "package_name": "com.example.auth_task_firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "369523901500-keqauimldjbv9oabvd1336nald89l8de.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABqa_7cBQwoTXT2tW7phRsdYjZVdNBjRw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "369523901500-keqauimldjbv9oabvd1336nald89l8de.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "369523901500-6492chtit704v3s6i16efnjfkrsmar1m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.authTaskFirebase"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369523901500:android:4165e62519a83f9aeaaf39",
+        "android_client_info": {
+          "package_name": "com.example.authentication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "369523901500-gi4vaio9bijajn2jsq6ls9cqisknt011.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.authentication",
+            "certificate_hash": "3c6179a128415a4ddd1fd5ad8a77f9472420446e"
+          }
+        },
+        {
+          "client_id": "369523901500-keqauimldjbv9oabvd1336nald89l8de.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABqa_7cBQwoTXT2tW7phRsdYjZVdNBjRw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "369523901500-keqauimldjbv9oabvd1336nald89l8de.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "369523901500-6492chtit704v3s6i16efnjfkrsmar1m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.authTaskFirebase"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
