@@ -122,32 +122,26 @@ Future<void> downloadFile(
   BuildContext context,
 ) async {
   try {
-    var status = await Permission.storage.request();
-    if (status.isDenied) {
-      debugPrint("Storage permission denied");
+    bool hasPermission = await requestStoragePermission();
+    if (!hasPermission) {
+      debugPrint(" Storage permission denied");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission is required to download files.')),
+        const SnackBar(content: Text('Storage permission required')),
       );
       return;
     }
 
-    Directory? downloadsDir;
+    Directory downloadsDir;
     if (Platform.isAndroid) {
-      downloadsDir = Directory('/storage/emulated/0/Download');
+      downloadsDir = Directory("/storage/emulated/0/Download");
     } else {
       downloadsDir = await getApplicationDocumentsDirectory();
     }
-    
-    if (!await downloadsDir.exists()) {
-      await downloadsDir.create(recursive: true);
-    }
 
-    // 4. Download the file
     final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final filePath = '${downloadsDir.path}/$fileName';
-      final file = File(filePath);
 
+    if (response.statusCode == 200) {
+      final file = File('${downloadsDir.path}/$fileName');
       await file.writeAsBytes(response.bodyBytes);
 
       debugPrint("File saved to: ${file.path}");
@@ -156,15 +150,8 @@ Future<void> downloadFile(
       );
     } else {
       debugPrint("Download failed: ${response.statusCode}");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Download failed with status code: ${response.statusCode}')),
-      );
     }
   } catch (e) {
     debugPrint("Download error: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Download error: $e')),
-    );
   }
 }
-

@@ -3,9 +3,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- For saving files into Downloads/DCIM -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    android:maxSdkVersion="29"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="29"/>
 
     <!-- For Android 13+ (API 33), new scoped permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
