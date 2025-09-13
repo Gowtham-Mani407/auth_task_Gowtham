@@ -20,3 +20,12 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+
+class AuthErrorsignup extends AuthState {
+  final String message;
+  AuthErrorsignup(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

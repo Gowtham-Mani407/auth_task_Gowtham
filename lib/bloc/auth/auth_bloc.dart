@@ -37,7 +37,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(Authenticated());
     } on FirebaseAuthException catch (e) {
-      emit(AuthError(e.message ?? "Signup Failed"));
+      emit(AuthErrorsignup(e.message ?? "Signup Failed"));
       emit(Unauthenticated());
     }
   }

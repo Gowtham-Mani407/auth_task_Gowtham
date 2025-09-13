@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:auth_task_firebase/bloc/file_upload/upload_event.dart';
 import 'package:auth_task_firebase/bloc/file_upload/upload_state.dart';
+import 'package:auth_task_firebase/model/filemodel.dart';
+import 'package:auth_task_firebase/view/screens/support.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FileBloc extends Bloc<FileEvent, FileState> {
@@ -14,14 +18,17 @@ class FileBloc extends Bloc<FileEvent, FileState> {
   FileBloc(this.storage, this.firestore, this.auth) : super(FileInitial()) {
     on<LoadFilesEvent>(onLoadFiles);
     on<UploadFileEvent>(onUploadFile);
-    on<DeleteFileEvent>(onDeleteFile);
   }
 
   Future<void> onLoadFiles(event, emit) async {
-    emit(FileLoading());
-    try {
-      emit(FileLoading());
+    List<FileModel> currentFiles = [];
 
+    if (state is FileLoaded) {
+      currentFiles = (state as FileLoaded).files;
+    }
+    emit(FileLoading(previousFiles: currentFiles));
+
+    try {
       final user = auth.currentUser!;
       final snapshot = await firestore
           .collection("user_uploads")
@@ -30,9 +37,7 @@ class FileBloc extends Bloc<FileEvent, FileState> {
           .orderBy("uploadedAt", descending: true)
           .get();
 
-      final files = snapshot.docs
-          .map((doc) => {...doc.data(), "id": doc.id})
-          .toList();
+      final files = snapshot.docs.map((doc) => FileModel.fromDoc(doc)).toList();
 
       emit(FileLoaded(files));
     } catch (e) {
@@ -41,36 +46,48 @@ class FileBloc extends Bloc<FileEvent, FileState> {
   }
 
   Future<void> onUploadFile(event, emit) async {
+    List<FileModel> currentFiles = [];
+    if (state is FileLoaded) {
+      currentFiles = (state as FileLoaded).files;
+    }
+
+    emit(FileLoading(previousFiles: currentFiles));
     try {
-      emit(FileLoading());
       final user = auth.currentUser!;
       final safeFileName = event.fileName.replaceAll(RegExp(r'[^\w\.\-]'), '_');
-
-      // final storage = FirebaseStorage.instanceFor(
-      //   bucket: 'all-apps-6cf99.firebasestorage.app',
-      // );
       final ref = storage.ref().child("user_uploads/${user.uid}/$safeFileName");
 
-      print("Uploading file to: ${ref.fullPath}");
-      print("Local file exists: ${event.file.existsSync()}");
+      debugPrint("Uploading file to: ${ref.fullPath}");
+      debugPrint("Local file exists: ${event.file.existsSync()}");
 
-      final uploadTask = await ref.putFile(event.file);
-      print("Upload complete!");
+      File fileToUpload = event.file;
+
+      if (event.type == "image") {
+        fileToUpload = await resizeImage(event.file);
+      }
+
+      final uploadTask = await ref.putFile(fileToUpload);
+      debugPrint("Upload complete!");
 
       final downloadUrl = await uploadTask.ref.getDownloadURL();
-      print("Download URL: $downloadUrl");
+      debugPrint("Download URL: $downloadUrl");
 
-      await firestore
+      final docRef = firestore
           .collection("user_uploads")
           .doc(user.uid)
           .collection("files")
-          .add({
-            "name": safeFileName,
-            "url": downloadUrl,
-            "type": event.type,
-            "path": ref.fullPath,
-            "uploadedAt": FieldValue.serverTimestamp(),
-          });
+          .doc();
+
+      final newFile = FileModel(
+        id: docRef.id,
+        name: safeFileName,
+        url: downloadUrl,
+        type: event.type,
+        path: ref.fullPath,
+        uploadedAt: DateTime.now(),
+      );
+
+      await docRef.set(newFile.toMap());
 
       add(LoadFilesEvent());
     } catch (e) {
@@ -78,24 +95,21 @@ class FileBloc extends Bloc<FileEvent, FileState> {
       emit(FileError("Upload failed: $e"));
     }
   }
-
-  Future<void> onDeleteFile(event, emit) async {
-    try {
-      emit(FileLoading());
-
-      final user = auth.currentUser!;
-      await storage.ref(event.storagePath).delete();
-
-      await firestore
-          .collection("user_uploads")
-          .doc(user.uid)
-          .collection("files")
-          .doc(event.docId)
-          .delete();
-
-      add(LoadFilesEvent());
-    } catch (e) {
-      emit(FileError("Delete failed: $e"));
-    }
-  }
 }
+
+
+      // final files = snapshot.docs
+      //     .map((doc) => {...doc.data(), "id": doc.id})
+      //     .toList();
+
+      //   await firestore
+      // .collection("user_uploads")
+      // .doc(user.uid)
+      // .collection("files")
+      // .add({
+      //   "name": safeFileName,
+      //   "url": downloadUrl,
+      //   "type": event.type,
+      //   "path": ref.fullPath,
+      //   "uploadedAt": FieldValue.serverTimestamp(),
+      // });

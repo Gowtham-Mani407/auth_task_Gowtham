@@ -18,6 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false, 
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
@@ -25,90 +26,101 @@ class _SignupScreenState extends State<SignupScreen> {
               context,
             ).showSnackBar(SnackBar(content: Text("Signup Success")));
             Navigator.pushNamed(context, '/home');
-          } else if (state is AuthError) {
+          } else if (state is AuthErrorsignup) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/img2.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 60,
-                  left: 10,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        onPressed: () {
-                          // Handle back button press
-                          Navigator.pop(context); // Example: Navigates back
-                        },
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          text: "Create Your account ",
-                          style: TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                      ),
-                    ],
+          return Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/img2.png'),
+                    fit: BoxFit.cover,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextFormField(
-                          controller: emailController,
-                          decoration: InputDecoration(labelText: "Email"),
-                          validator: (val) =>
-                              val!.isEmpty ? "Enter email" : null,
-                        ),
-                        TextFormField(
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(labelText: "Password"),
-                          validator: (val) =>
-                              val!.length < 5 ? "Password too short" : null,
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              context.read<AuthBloc>().add(
-                                SignUpRequesteve(
-                                  emailController.text.trim(),
-                                  passwordController.text.trim(),
-                                ),
-                              );
-                            }
-                          },
-                          child: Text("Sign Up"),
-                        ),
-                      ],
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 60,
+                      left: 10,
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context); 
+                            },
+                          ),
+                          RichText(
+                            text: TextSpan(
+                              text: "Create Your account ",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            TextFormField(
+                              controller: emailController,
+                              decoration: InputDecoration(labelText: "Email"),
+                              validator: (val) =>
+                                  val!.isEmpty ? "Enter email" : null,
+                            ),
+                            TextFormField(
+                              controller: passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: "Password",
+                              ),
+                              validator: (val) =>
+                                  val!.length < 5 ? "Password too short" : null,
+                            ),
+                            SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (formKey.currentState!.validate()) {
+                                  FocusScope.of(context).unfocus();
+                                  context.read<AuthBloc>().add(
+                                    SignUpRequesteve(
+                                      emailController.text.trim(),
+                                      passwordController.text.trim(),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text("Sign Up"),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (state is AuthLoading)
+                Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+            ],
           );
         },
       ),
