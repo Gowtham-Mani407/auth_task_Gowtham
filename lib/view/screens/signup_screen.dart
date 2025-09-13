@@ -18,14 +18,18 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, 
+      resizeToAvoidBottomInset: false,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text("Signup Success")));
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/home',
+              (route) => false,
+            );
           } else if (state is AuthErrorsignup) {
             ScaffoldMessenger.of(
               context,
@@ -56,7 +60,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               size: 24,
                             ),
                             onPressed: () {
-                              Navigator.pop(context); 
+                              Navigator.pop(context);
                             },
                           ),
                           RichText(
