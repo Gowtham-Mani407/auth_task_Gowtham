@@ -25,7 +25,7 @@ class _SignupScreenState extends State<SignupScreen> {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text("Signup Success")));
-            Navigator.pushNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, '/home');
           } else if (state is AuthErrorsignup) {
             ScaffoldMessenger.of(
               context,

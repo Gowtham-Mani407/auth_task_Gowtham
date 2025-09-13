@@ -6,7 +6,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -123,104 +122,56 @@ Future<void> downloadFile(
   BuildContext context,
 ) async {
   try {
-    bool hasPermission = await requestStoragePermission();
-    if (!hasPermission) {
+    // 1. Request necessary permissions
+    var status = await Permission.storage.request();
+    if (status.isDenied) {
       debugPrint("Storage permission denied");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Storage permission is required to download files.')),
+      );
       return;
     }
-
+    
+    // 2. Determine the correct downloads directory
     Directory? downloadsDir;
     if (Platform.isAndroid) {
-      downloadsDir = await getExternalStorageDirectory(); // app-specific folder
+      // For Android, use getExternalStorageDirectory() for a more robust approach
+      downloadsDir = Directory('/storage/emulated/0/Download');
     } else {
+      // For iOS, use getApplicationDocumentsDirectory()
       downloadsDir = await getApplicationDocumentsDirectory();
     }
+    
+    // 3. Ensure the downloads directory exists
+    if (!await downloadsDir.exists()) {
+      await downloadsDir.create(recursive: true);
+    }
+
+    // 4. Download the file
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/$fileName');
-      await tempFile.writeAsBytes(response.bodyBytes);
+      // 5. Create a file path in the downloads directory
+      final filePath = '${downloadsDir.path}/$fileName';
+      final file = File(filePath);
 
-      File finalFile = tempFile;
+      // 6. Write the downloaded bytes to the file
+      await file.writeAsBytes(response.bodyBytes);
 
-      if (fileName.toLowerCase().endsWith(".jpg") ||
-          fileName.toLowerCase().endsWith(".jpeg") ||
-          fileName.toLowerCase().endsWith(".png")) {
-        finalFile = await resizeImage(tempFile);
-      }
-
-      final savedFile = await finalFile.copy('${downloadsDir!.path}/$fileName');
-
-      debugPrint("File saved to: ${savedFile.path}");
+      debugPrint("File saved to: ${file.path}");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File stored in ${savedFile.path}')),
+        SnackBar(content: Text('File stored in ${file.path}')),
       );
     } else {
       debugPrint("Download failed: ${response.statusCode}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Download failed with status code: ${response.statusCode}')),
+      );
     }
   } catch (e) {
     debugPrint("Download error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Download error: $e')),
+    );
   }
 }
 
-
-// Future<void> showPdfPreview(BuildContext context, String url) async {
-//   debugPrint("PDF URL received: $url");
-
-//   // Show loading
-//   showDialog(
-//     context: context,
-//     barrierDismissible: false,
-//     builder: (_) => const Center(
-//       child: CircularProgressIndicator(color: Colors.green),
-//     ),
-//   );
-
-//   try {
-//     // Download PDF from Firebase
-//     final response = await http.get(Uri.parse(url));
-//     if (response.statusCode != 200) {
-//       throw Exception("Failed to download PDF");
-//     }
-
-//     final tempDir = await getTemporaryDirectory();
-//     final tempFile = File('${tempDir.path}/preview.pdf');
-//     await tempFile.writeAsBytes(response.bodyBytes, flush: true);
-
-//     // Close loader
-//     Navigator.of(context).pop();
-
-//     // Show PDF in dialog
-//     showDialog(
-//       context: context,
-//       builder: (_) => Dialog(
-//         child: SizedBox(
-//           width: MediaQuery.of(context).size.width * 0.9,
-//           height: 500,
-//           child: PDFView(
-//             filePath: tempFile.path,
-//             enableSwipe: true,
-//             swipeHorizontal: true,
-//             autoSpacing: true,
-//             pageFling: true,
-//             onError: (error) {
-//               debugPrint("PDFView error: $error");
-//               ScaffoldMessenger.of(context).showSnackBar(
-//                 SnackBar(content: Text("Failed to load PDF: $error")),
-//               );
-//             },
-//             onPageError: (page, error) {
-//               debugPrint("PDF page $page error: $error");
-//             },
-//           ),
-//         ),
-//       ),
-//     );
-//   } catch (e) {
-//     Navigator.of(context).pop(); // close loader if error
-//     debugPrint("PDF download error: $e");
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text("Failed to load PDF: $e")),
-//     );
-//   }
-// }

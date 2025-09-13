@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text("login Success")));
-            Navigator.pushNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, '/home');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text("Invalid email or password")),

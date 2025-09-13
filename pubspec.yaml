@@ -50,7 +50,6 @@ dependencies:
   flutter_image_compress: ^2.4.0
   flutter_pdfview: ^1.4.1+1
   url_launcher: ^6.3.2
-  webview_flutter: ^4.13.0
   
 
 dev_dependencies:
