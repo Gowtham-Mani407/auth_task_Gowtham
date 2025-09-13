@@ -122,7 +122,6 @@ Future<void> downloadFile(
   BuildContext context,
 ) async {
   try {
-    // 1. Request necessary permissions
     var status = await Permission.storage.request();
     if (status.isDenied) {
       debugPrint("Storage permission denied");
@@ -131,18 +130,14 @@ Future<void> downloadFile(
       );
       return;
     }
-    
-    // 2. Determine the correct downloads directory
+
     Directory? downloadsDir;
     if (Platform.isAndroid) {
-      // For Android, use getExternalStorageDirectory() for a more robust approach
       downloadsDir = Directory('/storage/emulated/0/Download');
     } else {
-      // For iOS, use getApplicationDocumentsDirectory()
       downloadsDir = await getApplicationDocumentsDirectory();
     }
     
-    // 3. Ensure the downloads directory exists
     if (!await downloadsDir.exists()) {
       await downloadsDir.create(recursive: true);
     }
@@ -150,11 +145,9 @@ Future<void> downloadFile(
     // 4. Download the file
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      // 5. Create a file path in the downloads directory
       final filePath = '${downloadsDir.path}/$fileName';
       final file = File(filePath);
 
-      // 6. Write the downloaded bytes to the file
       await file.writeAsBytes(response.bodyBytes);
 
       debugPrint("File saved to: ${file.path}");
