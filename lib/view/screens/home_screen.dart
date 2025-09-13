@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (state is FileLoaded) {
               files = state.files;
             } else if (state is FileLoading) {
-              // Preserve old files if available
+              
               if (state.previousFiles != null) {
                 files = state.previousFiles!;
               }

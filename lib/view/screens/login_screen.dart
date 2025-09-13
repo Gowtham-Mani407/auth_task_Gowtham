@@ -3,7 +3,6 @@ import 'package:auth_task_firebase/bloc/auth/auth_event.dart';
 import 'package:auth_task_firebase/bloc/auth/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool obsecureText = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,6 +81,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               obscureText: true,
                               decoration: InputDecoration(
                                 labelText: "Password",
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    obsecureText
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      obsecureText = !obsecureText;
+                                    });
+                                  },
+                                ),
                               ),
                               validator: (val) {
                                 if (val!.isEmpty) {
@@ -133,5 +146,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-
